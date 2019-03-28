@@ -7,12 +7,14 @@ Created on Tue Mar 26 18:38:19 2019
 
 import random
 import copy
+import numpy.random as choice
 import matplotlib.pyplot as plt
 
 class GeneticAlgo:
     
     matrix = []
     individuals = []
+    individualsWeight = []
     baitCount = 5
     indResultList = []
     xList = []
@@ -20,6 +22,7 @@ class GeneticAlgo:
     plotPathLists = []
     plotBaitList = []
     matrixSize = 13
+    individualCount = 4
         
 
     def makeMatrix(self, matrixSize = None, baitCount = None):
@@ -77,7 +80,12 @@ class GeneticAlgo:
         self.plotBaitList = [xList, yList]
             
     
-    def makeIndividuals(self, individualSize = 50, individualCount = 4):
+    def makeIndividuals(self, individualSize = 50, individualCount = None):
+        
+        if individualCount == None:
+            individualCount = self.individualCount
+        else:
+            self.individualCount = individualCount
     
         self.individuals = [[random.randint(1, 4)\
                           for j in range(individualSize)]\
@@ -131,10 +139,39 @@ class GeneticAlgo:
             self.yList = []
             
             
-#    def selection(self):
-#        
-#        self.indResultList
+    def rateCalculaion(self):
         
+        tmpList = []
+        tmpRateList = []
+        
+        for each in self.indResultList:
+            tmpList.append((each[1] + 0.4) / self.baitCount)
+        
+        summ = 0
+        
+        for each in tmpList:
+            summ += each
+            
+        for each in tmpList:
+            tmpRateList.append(each / summ)
+            
+        self.individualsWeight = tmpRateList
+        
+    
+    def selection(self):
+        
+        tmpIndividuals = random.choices(self.individuals,\
+                                        self.individualsWeight, k = 4)
+        
+        self.individuals = tmpIndividuals
+        
+    def crossOver(self):
+        
+        tmpList = []
+        
+        for each in self.individuals[0][0:25]:
+            tmpList.append(each)
+    
     
     def drawPlot(self):
         
@@ -147,13 +184,15 @@ class GeneticAlgo:
             
             
          
-###############################################################################
+##############################################################################
 
 
 x = GeneticAlgo()
 x.makeMatrix()
 x.makeIndividuals()
 x.iteration(x.visitMatrix)
+x.rateCalculaion()
+x.selection()
 x.drawPlot()
     
 matrix = x.matrix
@@ -161,7 +200,7 @@ individuals = x.individuals
 indResultList = x.indResultList
 path = x.plotPathLists
 bait = x.plotBaitList
-        
+individualsWeight = x.individualsWeight   
         
         
         
