@@ -215,7 +215,7 @@ class GeneticAlgo:
         indSize = len(self.individuals[0])
         self.individuals = []
         
-        for k in range(2):
+        for k in range(4):
             for each in tmpList:
                 rand = random.randint(1, indSize - 1)
                 each[rand] = random.randint(1, 4)
@@ -232,7 +232,7 @@ class GeneticAlgo:
                 
         red_patch = mpatches.Patch(color='red', label=self.iterationCount)
         plt.legend(handles=[red_patch])
-        plt.pause(1)
+        plt.pause(0.1)
             
          
 ##############################################################################
@@ -254,7 +254,7 @@ for each in x.indResultList:
 count = x.iterationCount
 
 # tum yiyecekler yenene veya iterasyon sayisi 1000'i gecene kadar doner
-while tmpBait < bait and count < 1000:
+while tmpBait < bait and count < 3:
     x.rateCalculaion()
     x.selection()
     x.crossOver()
