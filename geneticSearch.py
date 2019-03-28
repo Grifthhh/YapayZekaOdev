@@ -10,9 +10,11 @@ import random
 import copy
 import numpy.random as choice
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 class GeneticAlgo:
     
+    # gerekli degiskenler
     matrix = []
     individuals = []
     individualsWeight = []
@@ -26,7 +28,7 @@ class GeneticAlgo:
     individualCount = 4
     iterationCount = 0
         
-
+    # matrix olusturulur
     def makeMatrix(self, matrixSize = None, baitCount = None):
         
         if baitCount == None:
@@ -81,7 +83,7 @@ class GeneticAlgo:
         
         self.plotBaitList = [xList, yList]
             
-    
+    # ilk bireyler olusturulur
     def makeIndividuals(self, individualSize = 50, individualCount = None):
         
         if individualCount == None:
@@ -93,6 +95,7 @@ class GeneticAlgo:
                           for j in range(individualSize)]\
                           for i in range(individualCount)]
             
+    # her birey icin matris gexilir
     def visitMatrix(self, individual, i, j):
         
         eatedBait = 0
@@ -126,7 +129,7 @@ class GeneticAlgo:
                 
         return 0, eatedBait, pathLength
     
-    
+    # population icin matris gezilir yani 4 birey icin
     def iteration(self, visitMatrix, drawPlot):
         
         halfMatrixSize = int((len(self.matrix) - 1) / 2)
@@ -140,16 +143,14 @@ class GeneticAlgo:
             self.xList = []
             self.yList = []
         
-        
         for each in self.plotPathLists:
             drawPlot(each)
         
         self.plotPathLists = []
             
-        tmp = self.iterationCount
-        tmp += 1
-        self.iterationCount = tmp
-            
+        self.iterationCount += 1
+        
+    # basari orani hesaplanir
     def rateCalculaion(self):
         
         tmpList = []
@@ -168,7 +169,7 @@ class GeneticAlgo:
             
         self.individualsWeight = tmpRateList
         
-    
+    # yenibireyler secilir
     def selection(self):
         
         tmpIndividuals = random.choices(self.individuals,\
@@ -176,6 +177,7 @@ class GeneticAlgo:
         
         self.individuals = tmpIndividuals
         
+    # cross-over yapilir, bireyler caprazlanir
     def crossOver(self):
         
         tmpIndList = self.individuals
@@ -206,7 +208,7 @@ class GeneticAlgo:
             self.individuals.append(tmpList)
             self.individuals.append(tmpList2)
             
-        
+    #bireyler mutasyona ugratilir
     def mutation(self):
         
         tmpList = self.individuals
@@ -220,18 +222,20 @@ class GeneticAlgo:
     
         self.individuals = tmpList
     
-    
+    # bireylerin matris uzerinde gezmesi cizilir.
     def drawPlot(self, each):
         
         plt.figure()
         plt.scatter(self.plotBaitList[0], self.plotBaitList[1], c = 'red')
         plt.plot(each[0], each[1])
         plt.axis([0, self.matrixSize - 1, 0, self.matrixSize - 1])
-        plt.pause(0.2)
+                
+        red_patch = mpatches.Patch(color='red', label=self.iterationCount)
+        plt.legend(handles=[red_patch])
+        plt.pause(1)
             
          
 ##############################################################################
-
 
 x = GeneticAlgo()
 x.makeMatrix()
@@ -247,7 +251,10 @@ for each in x.indResultList:
     if tmpBait < each[1]:
         tmpBait = each[1]
 
-while tmpBait < bait or x.iterationCount < 10:
+count = x.iterationCount
+
+# tum yiyecekler yenene veya iterasyon sayisi 1000'i gecene kadar doner
+while tmpBait < bait and count < 1000:
     x.rateCalculaion()
     x.selection()
     x.crossOver()
@@ -257,7 +264,10 @@ while tmpBait < bait or x.iterationCount < 10:
     for each in x.indResultList:
         if tmpBait < each[1]:
             tmpBait = each[1]
-    
+            
+    count = x.iterationCount
+
+x.iterationCount
 matrix = x.matrix
 individuals = x.individuals
 indResultList = x.indResultList
