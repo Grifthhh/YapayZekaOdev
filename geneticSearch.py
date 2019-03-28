@@ -5,6 +5,7 @@ Created on Tue Mar 26 18:38:19 2019
 @author: EKREMBÜLBÜL
 """
 
+import time
 import random
 import copy
 import numpy.random as choice
@@ -23,6 +24,7 @@ class GeneticAlgo:
     plotBaitList = []
     matrixSize = 13
     individualCount = 4
+    iterationCount = 0
         
 
     def makeMatrix(self, matrixSize = None, baitCount = None):
@@ -125,7 +127,7 @@ class GeneticAlgo:
         return 0, eatedBait, pathLength
     
     
-    def iteration(self, visitMatrix):
+    def iteration(self, visitMatrix, drawPlot):
         
         halfMatrixSize = int((len(self.matrix) - 1) / 2)
         i = halfMatrixSize
@@ -137,7 +139,16 @@ class GeneticAlgo:
             self.plotPathLists.append([self.xList, self.yList])
             self.xList = []
             self.yList = []
+        
+        
+        for each in self.plotPathLists:
+            drawPlot(each)
+        
+        self.plotPathLists = []
             
+        tmp = self.iterationCount
+        tmp += 1
+        self.iterationCount = tmp
             
     def rateCalculaion(self):
         
@@ -145,7 +156,7 @@ class GeneticAlgo:
         tmpRateList = []
         
         for each in self.indResultList:
-            tmpList.append((each[1] + 0.4) / self.baitCount)
+            tmpList.append((each[1] + 0.2) / self.baitCount)
         
         summ = 0
         
@@ -167,21 +178,56 @@ class GeneticAlgo:
         
     def crossOver(self):
         
-        tmpList = []
+        tmpIndList = self.individuals
+        self.individuals = []
         
-        for each in self.individuals[0][0:25]:
-            tmpList.append(each)
-    
-    
-    def drawPlot(self):
+        size = len(tmpIndList[0])
+        halfSize = int(size / 2)
         
-        for each in self.plotPathLists:
+        for k in range(2):
         
-            plt.figure()
-            plt.scatter(self.plotBaitList[0], self.plotBaitList[1], c = 'red')
-            plt.plot(each[0], each[1])
-            plt.axis([0, self.matrixSize - 1, 0, self.matrixSize - 1])
+            n = 2 * k
             
+            tmpList = []
+            tmpList2 = []
+            
+            for each in tmpIndList[n][0:halfSize]:
+                tmpList.append(each)
+                
+            for each in tmpIndList[n + 1][25:size]:
+                tmpList.append(each)
+            
+            for each in tmpIndList[n + 1][0:halfSize]:
+                tmpList2.append(each)
+                
+            for each in tmpIndList[n][halfSize:size]:
+                tmpList2.append(each)
+                
+            self.individuals.append(tmpList)
+            self.individuals.append(tmpList2)
+            
+        
+    def mutation(self):
+        
+        tmpList = self.individuals
+        indSize = len(self.individuals[0])
+        self.individuals = []
+        
+        for k in range(2):
+            for each in tmpList:
+                rand = random.randint(1, indSize - 1)
+                each[rand] = random.randint(1, 4)
+    
+        self.individuals = tmpList
+    
+    
+    def drawPlot(self, each):
+        
+        plt.figure()
+        plt.scatter(self.plotBaitList[0], self.plotBaitList[1], c = 'red')
+        plt.plot(each[0], each[1])
+        plt.axis([0, self.matrixSize - 1, 0, self.matrixSize - 1])
+        plt.pause(0.2)
             
          
 ##############################################################################
@@ -190,16 +236,32 @@ class GeneticAlgo:
 x = GeneticAlgo()
 x.makeMatrix()
 x.makeIndividuals()
-x.iteration(x.visitMatrix)
-x.rateCalculaion()
-x.selection()
-x.drawPlot()
+
+
+x.iteration(x.visitMatrix, x.drawPlot)
+
+bait = x.baitCount
+tmpBait = 0
+
+for each in x.indResultList:
+    if tmpBait < each[1]:
+        tmpBait = each[1]
+
+while tmpBait < bait or x.iterationCount < 10:
+    x.rateCalculaion()
+    x.selection()
+    x.crossOver()
+    x.mutation()
+    x.iteration(x.visitMatrix, x.drawPlot)
+    
+    for each in x.indResultList:
+        if tmpBait < each[1]:
+            tmpBait = each[1]
     
 matrix = x.matrix
 individuals = x.individuals
 indResultList = x.indResultList
 path = x.plotPathLists
-bait = x.plotBaitList
 individualsWeight = x.individualsWeight   
         
         
